@@ -1,27 +1,43 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
-
-namespace System.Reactive.Disposables
+﻿namespace System.Reactive.Disposables
 {
     /// <summary>
     /// Represents a disposable resource whose underlying disposable resource can be replaced by another disposable resource, causing automatic disposal of the previous underlying disposable resource.
+    /// Also allows consumers to know if the resource has been disposed of.
     /// </summary>
-    public sealed class SerialDisposable : IDisposable
+    public sealed class SerialCancelable : ICancelable
     {
         private readonly object _gate = new object();
         private IDisposable _current;
         private bool _disposed;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:System.Reactive.Disposables.SerialDisposable"/> class.
+        /// Initializes a new instance of the <see cref="T:System.Reactive.Disposables.SerialCancelable"/> class.
         /// </summary>
-        public SerialDisposable()
+        public SerialCancelable()
         {
         }
-        
+
+        /// <summary>
+        /// Gets a value that indicates whether the object is disposed.
+        /// </summary>
+        public bool IsDisposed
+        {
+            get
+            {
+                lock (_gate)
+                {
+                    return _disposed;
+                }
+            }
+        }
+
         /// <summary>
         /// Gets or sets the underlying disposable.
         /// </summary>
-        /// <remarks>If the SerialDisposable has already been disposed, assignment to this property causes immediate disposal of the given disposable object. Assigning this property disposes the previous disposable object.</remarks>
+        /// <remarks>
+        /// If the SerialCancelable has already been disposed, assignment to this property causes immediate disposal of the given disposable object. 
+        /// Assigning this property disposes the previous disposable object.
+        /// </remarks>
         public IDisposable Disposable
         {
             get

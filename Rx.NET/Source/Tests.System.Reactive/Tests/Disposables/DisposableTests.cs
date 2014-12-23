@@ -468,7 +468,6 @@ namespace ReactiveTests.Tests
 
             var m = new SerialDisposable();
             m.Dispose();
-            Assert.IsTrue(m.IsDisposed);
 
             var d1 = Disposable.Create(() => { disp1 = true; });
             m.Disposable = d1;
@@ -487,6 +486,70 @@ namespace ReactiveTests.Tests
             var disp = false;
 
             var m = new SerialDisposable();
+            var d = Disposable.Create(() => { disp = true; });
+            m.Disposable = d;
+            Assert.AreSame(d, m.Disposable);
+            Assert.IsFalse(disp);
+
+            m.Dispose();
+            Assert.IsTrue(disp);
+            //Assert.IsNull(m.Disposable); // BREAKING CHANGE v2 > v1.x - Undefined behavior after disposal.
+        }
+
+
+        [TestMethod]
+        public void SerialCancelable_Ctor_Prop()
+        {
+            var m = new SerialCancelable();
+            Assert.IsNull(m.Disposable);
+        }
+
+        [TestMethod]
+        public void SerialCancelable_ReplaceBeforeDispose()
+        {
+            var disp1 = false;
+            var disp2 = false;
+
+            var m = new SerialCancelable();
+            var d1 = Disposable.Create(() => { disp1 = true; });
+            m.Disposable = d1;
+            Assert.AreSame(d1, m.Disposable);
+            Assert.IsFalse(disp1);
+
+            var d2 = Disposable.Create(() => { disp2 = true; });
+            m.Disposable = d2;
+            Assert.AreSame(d2, m.Disposable);
+            Assert.IsTrue(disp1);
+            Assert.IsFalse(disp2);
+        }
+
+        [TestMethod]
+        public void SerialCancelable_ReplaceAfterDispose()
+        {
+            var disp1 = false;
+            var disp2 = false;
+
+            var m = new SerialCancelable();
+            m.Dispose();
+            Assert.IsTrue(m.IsDisposed);
+
+            var d1 = Disposable.Create(() => { disp1 = true; });
+            m.Disposable = d1;
+            Assert.IsNull(m.Disposable); // CHECK
+            Assert.IsTrue(disp1);
+
+            var d2 = Disposable.Create(() => { disp2 = true; });
+            m.Disposable = d2;
+            Assert.IsNull(m.Disposable); // CHECK
+            Assert.IsTrue(disp2);
+        }
+
+        [TestMethod]
+        public void SerialCancelable_Dispose()
+        {
+            var disp = false;
+
+            var m = new SerialCancelable();
             var d = Disposable.Create(() => { disp = true; });
             m.Disposable = d;
             Assert.AreSame(d, m.Disposable);
