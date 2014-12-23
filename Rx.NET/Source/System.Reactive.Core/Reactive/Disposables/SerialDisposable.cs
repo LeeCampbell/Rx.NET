@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Threading;
+
 namespace System.Reactive.Disposables
 {
     /// <summary>
@@ -7,9 +9,8 @@ namespace System.Reactive.Disposables
     /// </summary>
     public sealed class SerialDisposable : IDisposable
     {
-        private readonly object _gate = new object();
         private IDisposable _current;
-        private bool _disposed;
+        private bool _hasDisposeBeenRequested = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Reactive.Disposables.SerialDisposable"/> class.
@@ -17,35 +18,39 @@ namespace System.Reactive.Disposables
         public SerialDisposable()
         {
         }
-        
+
         /// <summary>
         /// Gets or sets the underlying disposable.
         /// </summary>
-        /// <remarks>If the SerialDisposable has already been disposed, assignment to this property causes immediate disposal of the given disposable object. Assigning this property disposes the previous disposable object.</remarks>
+        /// <remarks>
+        /// If the SerialDisposable has already been disposed, assignment to this property causes immediate disposal of the given disposable object.
+        /// Assigning this property disposes the previous disposable object.
+        /// </remarks>
         public IDisposable Disposable
         {
-            get
-            {
-                return _current;
-            }
-
+            get { return _current; }
             set
             {
-                var shouldDispose = false;
-                var old = default(IDisposable);
-                lock (_gate)
+                if (_hasDisposeBeenRequested)
                 {
-                    shouldDispose = _disposed;
-                    if (!shouldDispose)
+                    if (value != null)
                     {
-                        old = _current;
-                        _current = value;
+                        value.Dispose();
                     }
                 }
-                if (old != null)
-                    old.Dispose();
-                if (shouldDispose && value != null)
-                    value.Dispose();
+                else
+                {
+                    var old = Interlocked.Exchange(ref _current, value);
+
+                    if (old != null)
+                        old.Dispose();
+
+                    //Mitigate race condition
+                    if (_hasDisposeBeenRequested)
+                    {
+                        PerformDisposal();
+                    }
+                }
             }
         }
 
@@ -54,18 +59,13 @@ namespace System.Reactive.Disposables
         /// </summary>
         public void Dispose()
         {
-            var old = default(IDisposable);
+            _hasDisposeBeenRequested = true;
+            PerformDisposal();
+        }
 
-            lock (_gate)
-            {
-                if (!_disposed)
-                {
-                    _disposed = true;
-                    old = _current;
-                    _current = null;
-                }
-            }
-
+        private void PerformDisposal()
+        {
+            var old = Interlocked.Exchange(ref _current, null);
             if (old != null)
                 old.Dispose();
         }
