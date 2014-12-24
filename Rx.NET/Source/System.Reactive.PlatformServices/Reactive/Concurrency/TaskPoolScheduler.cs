@@ -106,7 +106,7 @@ namespace System.Reactive.Concurrency
                 return Schedule(state, action);
 
 #if !NO_TASK_DELAY
-            var d = new MultipleAssignmentDisposable();
+            var d = new MultipleAssignmentCancelable();
 
             var ct = new CancellationDisposable();
             d.Disposable = ct;

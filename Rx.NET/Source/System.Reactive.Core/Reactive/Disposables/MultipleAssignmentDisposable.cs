@@ -1,14 +1,16 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Threading;
+
 namespace System.Reactive.Disposables
 {
     /// <summary>
     /// Represents a disposable resource whose underlying disposable resource can be swapped for another disposable resource.
     /// </summary>
-    public sealed class MultipleAssignmentDisposable : ICancelable
+    public sealed class MultipleAssignmentDisposable : IDisposable
     {
-        private readonly object _gate = new object();
         private IDisposable _current;
+        private bool _hasDisposeBeenRequested = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Reactive.Disposables.MultipleAssignmentDisposable"/> class with no current underlying disposable.
@@ -18,52 +20,32 @@ namespace System.Reactive.Disposables
         }
 
         /// <summary>
-        /// Gets a value that indicates whether the object is disposed.
-        /// </summary>
-        public bool IsDisposed
-        {
-            get
-            {
-                lock (_gate)
-                {
-                    // We use a sentinel value to indicate we've been disposed. This sentinel never leaks
-                    // to the outside world (see the Disposable property getter), so no-one can ever assign
-                    // this value to us manually.
-                    return _current == BooleanDisposable.True;
-                }
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the underlying disposable. After disposal, the result of getting this property is undefined.
         /// </summary>
-        /// <remarks>If the MutableDisposable has already been disposed, assignment to this property causes immediate disposal of the given disposable object.</remarks>
+        /// <remarks>If the MultipleAssignmentDisposable has already been disposed, assignment to this property causes immediate disposal of the given disposable object.</remarks>
         public IDisposable Disposable
         {
-            get
-            {
-                lock (_gate)
-                {
-                    if (_current == BooleanDisposable.True /* see IsDisposed */)
-                        return DefaultDisposable.Instance; // Don't leak the sentinel value.
-
-                    return _current;
-                }
-            }
+            get { return _current; }
 
             set
             {
-                var shouldDispose = false;
-                lock (_gate)
+                if (_hasDisposeBeenRequested)
                 {
-                    shouldDispose = (_current == BooleanDisposable.True /* see IsDisposed */);
-                    if (!shouldDispose)
+                    if (value != null)
                     {
-                        _current = value;
+                        value.Dispose();
                     }
                 }
-                if (shouldDispose && value != null)
-                    value.Dispose();
+                else
+                {
+                    Interlocked.Exchange(ref _current, value);
+
+                    //Mitigate race condition
+                    if (_hasDisposeBeenRequested)
+                    {
+                        PerformDisposal();
+                    }
+                }
             }
         }
 
@@ -72,17 +54,13 @@ namespace System.Reactive.Disposables
         /// </summary>
         public void Dispose()
         {
-            var old = default(IDisposable);
+            _hasDisposeBeenRequested = true;
+            PerformDisposal();
+        }
 
-            lock (_gate)
-            {
-                if (_current != BooleanDisposable.True /* see IsDisposed */)
-                {
-                    old = _current;
-                    _current = BooleanDisposable.True /* see IsDisposed */;
-                }
-            }
-
+        private void PerformDisposal()
+        {
+            var old = Interlocked.Exchange(ref _current, DefaultDisposable.Instance);
             if (old != null)
                 old.Dispose();
         }

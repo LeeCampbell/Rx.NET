@@ -662,6 +662,38 @@ namespace ReactiveTests.Tests
             var d1 = Disposable.Create(() => { disp1 = true; });
             m.Disposable = d1;
             Assert.AreSame(d1, m.Disposable);
+            Assert.IsFalse(disp1);
+
+            var disp2 = false;
+            var d2 = Disposable.Create(() => { disp2 = true; });
+            m.Disposable = d2;
+            Assert.AreSame(d2, m.Disposable);
+            Assert.IsFalse(disp1);
+            Assert.IsFalse(disp2);
+
+            m.Dispose();
+            Assert.IsFalse(disp1);
+            Assert.IsTrue(disp2);
+            //Assert.IsNull(m.Disposable); // BREAKING CHANGE v2 > v1.x - Undefined behavior after disposal.
+            m.Disposable.Dispose();        // This should be a nop.
+
+            var disp3 = false;
+            var d3 = Disposable.Create(() => { disp3 = true; });
+            m.Disposable = d3;
+            Assert.IsTrue(disp3);
+            //Assert.IsNull(m.Disposable); // BREAKING CHANGE v2 > v1.x - Undefined behavior after disposal.
+            m.Disposable.Dispose();        // This should be a nop.
+        }
+
+        [TestMethod]
+        public void MultipleAssignmentCancelable()
+        {
+            var m = new MultipleAssignmentCancelable();
+
+            var disp1 = false;
+            var d1 = Disposable.Create(() => { disp1 = true; });
+            m.Disposable = d1;
+            Assert.AreSame(d1, m.Disposable);
             Assert.IsFalse(m.IsDisposed);
 
             var disp2 = false;
