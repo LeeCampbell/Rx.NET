@@ -178,7 +178,7 @@ namespace System.Reactive.Linq.ObservableImpl
 
                 var subscription = _parent._source.SubscribeSafe(this);
 
-                return new CompositeDisposable { _timerD, subscription };
+                return new CompositeDisposable(_timerD, subscription);
             }
 
             private void CreateWindow()
@@ -377,7 +377,7 @@ namespace System.Reactive.Linq.ObservableImpl
 
                 var subscription = _parent._source.SubscribeSafe(this);
 
-                return new CompositeDisposable { _timerD, subscription };
+                return new CompositeDisposable(_timerD, subscription);
             }
 
             private void CreateTimer(int id)
@@ -516,9 +516,7 @@ namespace System.Reactive.Linq.ObservableImpl
                 _bufferGate = new AsyncLock();
 
                 _m = new SerialDisposable();
-                var groupDisposable = new CompositeDisposable(2) { _m };
-
-                groupDisposable.Add(_parent._source.SubscribeSafe(this));
+                var groupDisposable = new CompositeDisposable(_m, _parent._source.SubscribeSafe(this));
 
                 _bufferGate.Wait(CreateBufferClose);
 
@@ -630,6 +628,7 @@ namespace System.Reactive.Linq.ObservableImpl
             private IList<TSource> _buffer;
             private object _gate;
 
+            //Why is this a field? -LC
             private RefCountDisposable _refCountDisposable;
 
             public IDisposable Run()
@@ -637,7 +636,7 @@ namespace System.Reactive.Linq.ObservableImpl
                 _buffer = new List<TSource>();
                 _gate = new object();
 
-                var d = new CompositeDisposable(2);
+                var d = new DisposableCollection(2);
                 _refCountDisposable = new RefCountDisposable(d);
 
                 d.Add(_parent._source.SubscribeSafe(this));

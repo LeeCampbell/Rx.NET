@@ -12,9 +12,9 @@ namespace System.Reactive
     /// <typeparam name="TSource">Type of the resulting sequence's elements.</typeparam>
     internal interface IProducer<
 #if !NO_VARIANCE
-        out
+out
 #endif
-        TSource> : IObservable<TSource>
+ TSource> : IObservable<TSource>
     {
         IDisposable SubscribeRaw(IObserver<TSource> observer, bool enableSafeguard);
     }
@@ -45,7 +45,7 @@ namespace System.Reactive
             state.sink = new SingleAssignmentDisposable();
             state.subscription = new SingleAssignmentDisposable();
 
-            var d = new CompositeDisposable(2) { state.sink, state.subscription };
+            var d = new CompositeDisposable(state.sink, state.subscription);
 
             //
             // See AutoDetachObserver.cs for more information on the safeguarding requirement and

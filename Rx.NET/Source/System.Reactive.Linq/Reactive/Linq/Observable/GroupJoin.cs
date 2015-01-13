@@ -43,7 +43,7 @@ namespace System.Reactive.Linq.ObservableImpl
             }
 
             private object _gate;
-            private CompositeDisposable _group;
+            private DisposableCollection _group;
             private RefCountDisposable _refCount;
 
             private int _leftID;
@@ -55,7 +55,7 @@ namespace System.Reactive.Linq.ObservableImpl
             public IDisposable Run()
             {
                 _gate = new object();
-                _group = new CompositeDisposable();
+                _group = new DisposableCollection();
                 _refCount = new RefCountDisposable(_group);
 
                 var leftSubscription = new SingleAssignmentDisposable();

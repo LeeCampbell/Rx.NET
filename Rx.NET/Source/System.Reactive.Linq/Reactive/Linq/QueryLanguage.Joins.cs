@@ -69,7 +69,7 @@ namespace System.Reactive.Linq
                     return Throw<TResult>(e).Subscribe/*Unsafe*/(observer);
                 }
 
-                var group = new CompositeDisposable(externalSubscriptions.Values.Count);
+                var group = new DisposableCollection(externalSubscriptions.Values.Count);
                 foreach (var joinObserver in externalSubscriptions.Values)
                 {
                     joinObserver.Subscribe(gate);

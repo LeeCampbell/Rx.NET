@@ -119,21 +119,81 @@ namespace ReactiveTests.Tests
             ReactiveAssert.Throws<InvalidOperationException>(() => { d.Disposable = Disposable.Empty; });
         }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         [TestMethod]
         public void CompositeDisposable_ArgumentChecking()
         {
             ReactiveAssert.Throws<ArgumentNullException>(() => new CompositeDisposable(default(IDisposable[])));
             ReactiveAssert.Throws<ArgumentNullException>(() => new CompositeDisposable(default(IEnumerable<IDisposable>)));
-            ReactiveAssert.Throws<ArgumentOutOfRangeException>(() => new CompositeDisposable(-1));
         }
 
         [TestMethod]
-        public void CompositeDisposable_Contains()
+        public void CompositeDisposable_params_Ctor_Dispose()
         {
-            var d1 = Disposable.Create(() => {} );
+            var d1 = new BooleanDisposable();
+            var d2 = new BooleanDisposable();
+            var sut = new CompositeDisposable(d1, d2);
+
+            sut.Dispose();
+
+            Assert.IsTrue(d1.IsDisposed);
+            Assert.IsTrue(d2.IsDisposed);
+        }
+
+        [TestMethod]
+        public void CompositeDisposable_IEnum_Ctor_Dispose()
+        {
+            var d1 = new BooleanDisposable();
+            var d2 = new BooleanDisposable();
+            var resources = new List<IDisposable> {d1, d2};
+            var sut = new CompositeDisposable(resources);
+
+            sut.Dispose();
+
+            Assert.IsTrue(d1.IsDisposed);
+            Assert.IsTrue(d2.IsDisposed);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+        [TestMethod]
+        public void DisposableCollection_ArgumentChecking()
+        {
+            ReactiveAssert.Throws<ArgumentNullException>(() => new DisposableCollection(default(IDisposable[])));
+            ReactiveAssert.Throws<ArgumentNullException>(() => new DisposableCollection(default(IEnumerable<IDisposable>)));
+            ReactiveAssert.Throws<ArgumentOutOfRangeException>(() => new DisposableCollection(-1));
+        }
+
+        [TestMethod]
+        public void DisposableCollection_Contains()
+        {
+            var d1 = Disposable.Create(() => { });
             var d2 = Disposable.Create(() => { });
 
-            var g = new CompositeDisposable(d1, d2);
+            var g = new DisposableCollection(d1, d2);
             Assert.AreEqual(2, g.Count);
             Assert.IsTrue(g.Contains(d1));
             Assert.IsTrue(g.Contains(d2));
@@ -142,35 +202,35 @@ namespace ReactiveTests.Tests
         }
 
         [TestMethod]
-        public void CompositeDisposable_IsReadOnly()
+        public void DisposableCollection_IsReadOnly()
         {
-            Assert.IsFalse(new CompositeDisposable().IsReadOnly);
+            Assert.IsFalse(new DisposableCollection().IsReadOnly);
         }
 
         [TestMethod, ExpectedException(typeof(ArgumentNullException))]
-        public void CompositeDisposable_CopyTo_Null()
+        public void DisposableCollection_CopyTo_Null()
         {
-            new CompositeDisposable().CopyTo(null, 0);
+            new DisposableCollection().CopyTo(null, 0);
         }
 
         [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void CompositeDisposable_CopyTo_Negative()
+        public void DisposableCollection_CopyTo_Negative()
         {
-            new CompositeDisposable().CopyTo(new IDisposable[2], -1);
+            new DisposableCollection().CopyTo(new IDisposable[2], -1);
         }
 
         [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void CompositeDisposable_CopyTo_BeyondEnd()
+        public void DisposableCollection_CopyTo_BeyondEnd()
         {
-            new CompositeDisposable().CopyTo(new IDisposable[2], 2);
+            new DisposableCollection().CopyTo(new IDisposable[2], 2);
         }
 
         [TestMethod]
-        public void CompositeDisposable_CopyTo()
+        public void DisposableCollection_CopyTo()
         {
             var d1 = Disposable.Create(() => { });
             var d2 = Disposable.Create(() => { });
-            var g = new CompositeDisposable(new List<IDisposable> { d1, d2 });
+            var g = new DisposableCollection(new List<IDisposable> { d1, d2 });
 
             var d = new IDisposable[3];
             g.CopyTo(d, 1);
@@ -179,22 +239,22 @@ namespace ReactiveTests.Tests
         }
 
         [TestMethod]
-        public void CompositeDisposable_ToArray()
+        public void DisposableCollection_ToArray()
         {
             var d1 = Disposable.Create(() => { });
             var d2 = Disposable.Create(() => { });
-            var g = new CompositeDisposable(d1, d2);
+            var g = new DisposableCollection(d1, d2);
             Assert.AreEqual(2, g.Count);
             var x = Enumerable.ToArray(g);
             Assert.IsTrue(g.ToArray().SequenceEqual(new[] { d1, d2 }));
         }
 
         [TestMethod]
-        public void CompositeDisposable_GetEnumerator()
+        public void DisposableCollection_GetEnumerator()
         {
             var d1 = Disposable.Create(() => { });
             var d2 = Disposable.Create(() => { });
-            var g = new CompositeDisposable(d1, d2);
+            var g = new DisposableCollection(d1, d2);
             var lst = new List<IDisposable>();
             foreach (var x in g)
                 lst.Add(x);
@@ -202,11 +262,11 @@ namespace ReactiveTests.Tests
         }
 
         [TestMethod]
-        public void CompositeDisposable_GetEnumeratorNonGeneric()
+        public void DisposableCollection_GetEnumeratorNonGeneric()
         {
             var d1 = Disposable.Create(() => { });
             var d2 = Disposable.Create(() => { });
-            var g = new CompositeDisposable(d1, d2);
+            var g = new DisposableCollection(d1, d2);
             var lst = new List<IDisposable>();
             foreach (IDisposable x in (IEnumerable)g)
                 lst.Add(x);
@@ -214,28 +274,28 @@ namespace ReactiveTests.Tests
         }
 
         [TestMethod]
-        public void CompositeDisposable_CollectionInitializer()
+        public void DisposableCollection_CollectionInitializer()
         {
             var d1 = Disposable.Create(() => { });
             var d2 = Disposable.Create(() => { });
-            var g = new CompositeDisposable { d1, d2 };
+            var g = new DisposableCollection { d1, d2 };
             Assert.AreEqual(2, g.Count);
             Assert.IsTrue(g.Contains(d1));
             Assert.IsTrue(g.Contains(d2));
         }
 
         [TestMethod, ExpectedException(typeof(ArgumentNullException))]
-        public void CompositeDisposable_AddNull()
+        public void DisposableCollection_AddNull()
         {
-            new CompositeDisposable().Add(null);
+            new DisposableCollection().Add(null);
         }
 
         [TestMethod]
-        public void CompositeDisposable_Add()
+        public void DisposableCollection_Add()
         {
             var d1 = Disposable.Create(() => { });
             var d2 = Disposable.Create(() => { });
-            var g = new CompositeDisposable(d1);
+            var g = new DisposableCollection(d1);
             Assert.AreEqual(1, g.Count);
             Assert.IsTrue(g.Contains(d1));
             g.Add(d2);
@@ -244,14 +304,14 @@ namespace ReactiveTests.Tests
         }
 
         [TestMethod]
-        public void CompositeDisposable_AddAfterDispose()
+        public void DisposableCollection_AddAfterDispose()
         {
             var disp1 = false;
             var disp2 = false;
 
             var d1 = Disposable.Create(() => { disp1 = true; });
             var d2 = Disposable.Create(() => { disp2 = true; });
-            var g = new CompositeDisposable(d1);
+            var g = new DisposableCollection(d1);
             Assert.AreEqual(1, g.Count);
 
             g.Dispose();
@@ -266,14 +326,14 @@ namespace ReactiveTests.Tests
         }
 
         [TestMethod]
-        public void CompositeDisposable_Remove()
+        public void DisposableCollection_Remove()
         {
             var disp1 = false;
             var disp2 = false;
 
             var d1 = Disposable.Create(() => { disp1 = true; });
             var d2 = Disposable.Create(() => { disp2 = true; });
-            var g = new CompositeDisposable(d1, d2);
+            var g = new DisposableCollection(d1, d2);
 
             Assert.AreEqual(2, g.Count);
             Assert.IsTrue(g.Contains(d1));
@@ -297,14 +357,14 @@ namespace ReactiveTests.Tests
         }
 
         [TestMethod]
-        public void CompositeDisposable_Clear()
+        public void DisposableCollection_Clear()
         {
             var disp1 = false;
             var disp2 = false;
 
             var d1 = Disposable.Create(() => { disp1 = true; });
             var d2 = Disposable.Create(() => { disp2 = true; });
-            var g = new CompositeDisposable(d1, d2);
+            var g = new DisposableCollection(d1, d2);
             Assert.AreEqual(2, g.Count);
 
             g.Clear();
@@ -320,9 +380,9 @@ namespace ReactiveTests.Tests
         }
 
         [TestMethod]
-        public void CompositeDisposable_RemoveOptimizationBehavior()
+        public void DisposableCollection_RemoveOptimizationBehavior()
         {
-            var g = new CompositeDisposable();
+            var g = new DisposableCollection();
             var m = new Dictionary<int, IDisposable>();
             var r = new List<int>();
 
@@ -359,10 +419,14 @@ namespace ReactiveTests.Tests
         }
 
         [TestMethod, ExpectedException(typeof(ArgumentNullException))]
-        public void CompositeDisposable_RemoveNull()
+        public void DisposableCollection_RemoveNull()
         {
-            new CompositeDisposable().Remove(null);
+            new DisposableCollection().Remove(null);
         }
+
+
+
+
 
 #if DESKTOPCLR40 || DESKTOPCLR45
         [TestMethod, ExpectedException(typeof(ArgumentNullException))]

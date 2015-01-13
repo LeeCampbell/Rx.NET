@@ -123,14 +123,14 @@ namespace System.Reactive.Linq.ObservableImpl
 
             private object _gate;
             private bool _isStopped;
-            private CompositeDisposable _group;
+            private DisposableCollection _group;
             private SingleAssignmentDisposable _sourceSubscription;
 
             public IDisposable Run()
             {
                 _gate = new object();
                 _isStopped = false;
-                _group = new CompositeDisposable();
+                _group = new DisposableCollection();
 
                 _sourceSubscription = new SingleAssignmentDisposable();
                 _group.Add(_sourceSubscription);
@@ -273,7 +273,7 @@ namespace System.Reactive.Linq.ObservableImpl
 
             private object _gate;
             private bool _isStopped;
-            private CompositeDisposable _group;
+            private DisposableCollection _group;
             private SingleAssignmentDisposable _sourceSubscription;
             private int _index;
 
@@ -281,7 +281,7 @@ namespace System.Reactive.Linq.ObservableImpl
             {
                 _gate = new object();
                 _isStopped = false;
-                _group = new CompositeDisposable();
+                _group = new DisposableCollection();
 
                 _sourceSubscription = new SingleAssignmentDisposable();
                 _group.Add(_sourceSubscription);
@@ -981,14 +981,14 @@ namespace System.Reactive.Linq.ObservableImpl
 
             private object _gate;
             private bool _isStopped;
-            private CompositeDisposable _group;
+            private DisposableCollection _group;
             private SingleAssignmentDisposable _sourceSubscription;
 
             public IDisposable Run()
             {
                 _gate = new object();
                 _isStopped = false;
-                _group = new CompositeDisposable();
+                _group = new DisposableCollection();
 
                 _sourceSubscription = new SingleAssignmentDisposable();
                 _group.Add(_sourceSubscription);
@@ -1169,7 +1169,7 @@ namespace System.Reactive.Linq.ObservableImpl
 
             private object _gate;
             private bool _isStopped;
-            private CompositeDisposable _group;
+            private DisposableCollection _group;
             private SingleAssignmentDisposable _sourceSubscription;
             private int _index;
 
@@ -1177,7 +1177,7 @@ namespace System.Reactive.Linq.ObservableImpl
             {
                 _gate = new object();
                 _isStopped = false;
-                _group = new CompositeDisposable();
+                _group = new DisposableCollection();
 
                 _sourceSubscription = new SingleAssignmentDisposable();
                 _group.Add(_sourceSubscription);

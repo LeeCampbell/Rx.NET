@@ -35,7 +35,7 @@ namespace System.Reactive.Linq
                 var outGate = new object();
                 var q = new Queue<IObservable<TSource>>();
                 var m = new SerialDisposable();
-                var d = new CompositeDisposable { m };
+                var d = new DisposableCollection(m);
                 var activeCount = 0;
                 var isAcquired = false;
 
@@ -254,7 +254,7 @@ namespace System.Reactive.Linq
                     return Disposable.Empty;
                 }
 
-                var group = new CompositeDisposable(allSources.Length);
+                var group = new DisposableCollection(allSources.Length);
                 var gate = new object();
 
                 var finished = false;
@@ -384,7 +384,7 @@ namespace System.Reactive.Linq
 
             public IDisposable Subscribe(IObserver<T> observer)
             {
-                var g = new CompositeDisposable();
+                var g = new DisposableCollection();
                 g.Add(CurrentThreadScheduler.Instance.Schedule(() =>
                 {
                     observer.OnNext(head);

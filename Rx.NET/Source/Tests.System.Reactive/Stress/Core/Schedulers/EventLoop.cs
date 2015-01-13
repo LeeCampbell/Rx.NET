@@ -39,7 +39,7 @@ namespace ReactiveTests.Stress.Schedulers
                             failed.SetResult(count);
                     }))
                     .Aggregate(
-                        new CompositeDisposable(),
+                        new DisposableCollection(),
                         (c, d) =>
                         {
                             c.Add(d);

@@ -404,31 +404,30 @@ namespace System.Reactive.Linq.ObservableImpl
 
             public IDisposable Run()
             {
-                var subscriptions = new SingleAssignmentDisposable[3];
-                for (int i = 0; i < 3; i++)
-                    subscriptions[i] = new SingleAssignmentDisposable();
+                var resources = new SingleAssignmentDisposable[4];
+                for (int i = 0; i < 4; i++)
+                    resources[i] = new SingleAssignmentDisposable();
 
-                _observer1 = new ZipObserver<T1>(_gate, this, 0, subscriptions[0]);
-                _observer2 = new ZipObserver<T2>(_gate, this, 1, subscriptions[1]);
-                _observer3 = new ZipObserver<T3>(_gate, this, 2, subscriptions[2]);
+                _observer1 = new ZipObserver<T1>(_gate, this, 0, resources[0]);
+                _observer2 = new ZipObserver<T2>(_gate, this, 1, resources[1]);
+                _observer3 = new ZipObserver<T3>(_gate, this, 2, resources[2]);
 
                 base.Queues[0] = _observer1.Values;
                 base.Queues[1] = _observer2.Values;
                 base.Queues[2] = _observer3.Values;
 
-                subscriptions[0].Disposable = _parent._source1.SubscribeSafe(_observer1);
-                subscriptions[1].Disposable = _parent._source2.SubscribeSafe(_observer2);
-                subscriptions[2].Disposable = _parent._source3.SubscribeSafe(_observer3);
+                resources[0].Disposable = _parent._source1.SubscribeSafe(_observer1);
+                resources[1].Disposable = _parent._source2.SubscribeSafe(_observer2);
+                resources[2].Disposable = _parent._source3.SubscribeSafe(_observer3);
 
-                return new CompositeDisposable(subscriptions)
-                    {
-                        Disposable.Create(() =>
-                        {
-                            _observer1.Values.Clear();
-                            _observer2.Values.Clear();
-                            _observer3.Values.Clear();
-                        })
-                    };
+                resources[3].Disposable = Disposable.Create(() =>
+                                                        {
+                                                            _observer1.Values.Clear();
+                                                            _observer2.Values.Clear();
+                                                            _observer3.Values.Clear();
+                                                        });
+
+                return new CompositeDisposable(resources);
             }
 
             protected override TResult GetResult()
@@ -479,35 +478,33 @@ namespace System.Reactive.Linq.ObservableImpl
 
             public IDisposable Run()
             {
-                var subscriptions = new SingleAssignmentDisposable[4];
-                for (int i = 0; i < 4; i++)
-                    subscriptions[i] = new SingleAssignmentDisposable();
+                var resources = new SingleAssignmentDisposable[5];
+                for (int i = 0; i < 5; i++)
+                    resources[i] = new SingleAssignmentDisposable();
 
-                _observer1 = new ZipObserver<T1>(_gate, this, 0, subscriptions[0]);
-                _observer2 = new ZipObserver<T2>(_gate, this, 1, subscriptions[1]);
-                _observer3 = new ZipObserver<T3>(_gate, this, 2, subscriptions[2]);
-                _observer4 = new ZipObserver<T4>(_gate, this, 3, subscriptions[3]);
+                _observer1 = new ZipObserver<T1>(_gate, this, 0, resources[0]);
+                _observer2 = new ZipObserver<T2>(_gate, this, 1, resources[1]);
+                _observer3 = new ZipObserver<T3>(_gate, this, 2, resources[2]);
+                _observer4 = new ZipObserver<T4>(_gate, this, 3, resources[3]);
 
                 base.Queues[0] = _observer1.Values;
                 base.Queues[1] = _observer2.Values;
                 base.Queues[2] = _observer3.Values;
                 base.Queues[3] = _observer4.Values;
 
-                subscriptions[0].Disposable = _parent._source1.SubscribeSafe(_observer1);
-                subscriptions[1].Disposable = _parent._source2.SubscribeSafe(_observer2);
-                subscriptions[2].Disposable = _parent._source3.SubscribeSafe(_observer3);
-                subscriptions[3].Disposable = _parent._source4.SubscribeSafe(_observer4);
+                resources[0].Disposable = _parent._source1.SubscribeSafe(_observer1);
+                resources[1].Disposable = _parent._source2.SubscribeSafe(_observer2);
+                resources[2].Disposable = _parent._source3.SubscribeSafe(_observer3);
+                resources[3].Disposable = _parent._source4.SubscribeSafe(_observer4);
+                resources[4].Disposable = Disposable.Create(() =>
+                {
+                    _observer1.Values.Clear();
+                    _observer2.Values.Clear();
+                    _observer3.Values.Clear();
+                    _observer4.Values.Clear();
+                });
 
-                return new CompositeDisposable(subscriptions)
-                    {
-                        Disposable.Create(() =>
-                        {
-                            _observer1.Values.Clear();
-                            _observer2.Values.Clear();
-                            _observer3.Values.Clear();
-                            _observer4.Values.Clear();
-                        })
-                    };
+                return new CompositeDisposable(resources);
             }
 
             protected override TResult GetResult()
@@ -562,15 +559,15 @@ namespace System.Reactive.Linq.ObservableImpl
 
             public IDisposable Run()
             {
-                var subscriptions = new SingleAssignmentDisposable[5];
-                for (int i = 0; i < 5; i++)
-                    subscriptions[i] = new SingleAssignmentDisposable();
+                var resources = new SingleAssignmentDisposable[6];
+                for (int i = 0; i < 6; i++)
+                    resources[i] = new SingleAssignmentDisposable();
 
-                _observer1 = new ZipObserver<T1>(_gate, this, 0, subscriptions[0]);
-                _observer2 = new ZipObserver<T2>(_gate, this, 1, subscriptions[1]);
-                _observer3 = new ZipObserver<T3>(_gate, this, 2, subscriptions[2]);
-                _observer4 = new ZipObserver<T4>(_gate, this, 3, subscriptions[3]);
-                _observer5 = new ZipObserver<T5>(_gate, this, 4, subscriptions[4]);
+                _observer1 = new ZipObserver<T1>(_gate, this, 0, resources[0]);
+                _observer2 = new ZipObserver<T2>(_gate, this, 1, resources[1]);
+                _observer3 = new ZipObserver<T3>(_gate, this, 2, resources[2]);
+                _observer4 = new ZipObserver<T4>(_gate, this, 3, resources[3]);
+                _observer5 = new ZipObserver<T5>(_gate, this, 4, resources[4]);
 
                 base.Queues[0] = _observer1.Values;
                 base.Queues[1] = _observer2.Values;
@@ -578,23 +575,21 @@ namespace System.Reactive.Linq.ObservableImpl
                 base.Queues[3] = _observer4.Values;
                 base.Queues[4] = _observer5.Values;
 
-                subscriptions[0].Disposable = _parent._source1.SubscribeSafe(_observer1);
-                subscriptions[1].Disposable = _parent._source2.SubscribeSafe(_observer2);
-                subscriptions[2].Disposable = _parent._source3.SubscribeSafe(_observer3);
-                subscriptions[3].Disposable = _parent._source4.SubscribeSafe(_observer4);
-                subscriptions[4].Disposable = _parent._source5.SubscribeSafe(_observer5);
+                resources[0].Disposable = _parent._source1.SubscribeSafe(_observer1);
+                resources[1].Disposable = _parent._source2.SubscribeSafe(_observer2);
+                resources[2].Disposable = _parent._source3.SubscribeSafe(_observer3);
+                resources[3].Disposable = _parent._source4.SubscribeSafe(_observer4);
+                resources[4].Disposable = _parent._source5.SubscribeSafe(_observer5);
+                resources[5].Disposable = Disposable.Create(() =>
+                {
+                    _observer1.Values.Clear();
+                    _observer2.Values.Clear();
+                    _observer3.Values.Clear();
+                    _observer4.Values.Clear();
+                    _observer5.Values.Clear();
+                });
 
-                return new CompositeDisposable(subscriptions)
-                    {
-                        Disposable.Create(() =>
-                        {
-                            _observer1.Values.Clear();
-                            _observer2.Values.Clear();
-                            _observer3.Values.Clear();
-                            _observer4.Values.Clear();
-                            _observer5.Values.Clear();
-                        })
-                    };
+                return new CompositeDisposable(resources);
             }
 
             protected override TResult GetResult()
@@ -651,16 +646,16 @@ namespace System.Reactive.Linq.ObservableImpl
 
             public IDisposable Run()
             {
-                var subscriptions = new SingleAssignmentDisposable[6];
-                for (int i = 0; i < 6; i++)
-                    subscriptions[i] = new SingleAssignmentDisposable();
+                var resources = new SingleAssignmentDisposable[7];
+                for (int i = 0; i < 7; i++)
+                    resources[i] = new SingleAssignmentDisposable();
 
-                _observer1 = new ZipObserver<T1>(_gate, this, 0, subscriptions[0]);
-                _observer2 = new ZipObserver<T2>(_gate, this, 1, subscriptions[1]);
-                _observer3 = new ZipObserver<T3>(_gate, this, 2, subscriptions[2]);
-                _observer4 = new ZipObserver<T4>(_gate, this, 3, subscriptions[3]);
-                _observer5 = new ZipObserver<T5>(_gate, this, 4, subscriptions[4]);
-                _observer6 = new ZipObserver<T6>(_gate, this, 5, subscriptions[5]);
+                _observer1 = new ZipObserver<T1>(_gate, this, 0, resources[0]);
+                _observer2 = new ZipObserver<T2>(_gate, this, 1, resources[1]);
+                _observer3 = new ZipObserver<T3>(_gate, this, 2, resources[2]);
+                _observer4 = new ZipObserver<T4>(_gate, this, 3, resources[3]);
+                _observer5 = new ZipObserver<T5>(_gate, this, 4, resources[4]);
+                _observer6 = new ZipObserver<T6>(_gate, this, 5, resources[5]);
 
                 base.Queues[0] = _observer1.Values;
                 base.Queues[1] = _observer2.Values;
@@ -669,25 +664,23 @@ namespace System.Reactive.Linq.ObservableImpl
                 base.Queues[4] = _observer5.Values;
                 base.Queues[5] = _observer6.Values;
 
-                subscriptions[0].Disposable = _parent._source1.SubscribeSafe(_observer1);
-                subscriptions[1].Disposable = _parent._source2.SubscribeSafe(_observer2);
-                subscriptions[2].Disposable = _parent._source3.SubscribeSafe(_observer3);
-                subscriptions[3].Disposable = _parent._source4.SubscribeSafe(_observer4);
-                subscriptions[4].Disposable = _parent._source5.SubscribeSafe(_observer5);
-                subscriptions[5].Disposable = _parent._source6.SubscribeSafe(_observer6);
+                resources[0].Disposable = _parent._source1.SubscribeSafe(_observer1);
+                resources[1].Disposable = _parent._source2.SubscribeSafe(_observer2);
+                resources[2].Disposable = _parent._source3.SubscribeSafe(_observer3);
+                resources[3].Disposable = _parent._source4.SubscribeSafe(_observer4);
+                resources[4].Disposable = _parent._source5.SubscribeSafe(_observer5);
+                resources[5].Disposable = _parent._source6.SubscribeSafe(_observer6);
+                resources[6].Disposable = Disposable.Create(() =>
+                {
+                    _observer1.Values.Clear();
+                    _observer2.Values.Clear();
+                    _observer3.Values.Clear();
+                    _observer4.Values.Clear();
+                    _observer5.Values.Clear();
+                    _observer6.Values.Clear();
+                });
 
-                return new CompositeDisposable(subscriptions)
-                    {
-                        Disposable.Create(() =>
-                        {
-                            _observer1.Values.Clear();
-                            _observer2.Values.Clear();
-                            _observer3.Values.Clear();
-                            _observer4.Values.Clear();
-                            _observer5.Values.Clear();
-                            _observer6.Values.Clear();
-                        })
-                    };
+                return new CompositeDisposable(resources);
             }
 
             protected override TResult GetResult()
@@ -775,7 +768,7 @@ namespace System.Reactive.Linq.ObservableImpl
                 subscriptions[5].Disposable = _parent._source6.SubscribeSafe(_observer6);
                 subscriptions[6].Disposable = _parent._source7.SubscribeSafe(_observer7);
 
-                return new CompositeDisposable(subscriptions)
+                return new DisposableCollection(subscriptions)
                     {
                         Disposable.Create(() =>
                         {
@@ -881,7 +874,7 @@ namespace System.Reactive.Linq.ObservableImpl
                 subscriptions[6].Disposable = _parent._source7.SubscribeSafe(_observer7);
                 subscriptions[7].Disposable = _parent._source8.SubscribeSafe(_observer8);
 
-                return new CompositeDisposable(subscriptions)
+                return new DisposableCollection(subscriptions)
                     {
                         Disposable.Create(() =>
                         {
@@ -994,7 +987,7 @@ namespace System.Reactive.Linq.ObservableImpl
                 subscriptions[7].Disposable = _parent._source8.SubscribeSafe(_observer8);
                 subscriptions[8].Disposable = _parent._source9.SubscribeSafe(_observer9);
 
-                return new CompositeDisposable(subscriptions)
+                return new DisposableCollection(subscriptions)
                     {
                         Disposable.Create(() =>
                         {
@@ -1114,7 +1107,7 @@ namespace System.Reactive.Linq.ObservableImpl
                 subscriptions[8].Disposable = _parent._source9.SubscribeSafe(_observer9);
                 subscriptions[9].Disposable = _parent._source10.SubscribeSafe(_observer10);
 
-                return new CompositeDisposable(subscriptions)
+                return new DisposableCollection(subscriptions)
                     {
                         Disposable.Create(() =>
                         {
@@ -1241,7 +1234,7 @@ namespace System.Reactive.Linq.ObservableImpl
                 subscriptions[9].Disposable = _parent._source10.SubscribeSafe(_observer10);
                 subscriptions[10].Disposable = _parent._source11.SubscribeSafe(_observer11);
 
-                return new CompositeDisposable(subscriptions)
+                return new DisposableCollection(subscriptions)
                     {
                         Disposable.Create(() =>
                         {
@@ -1375,7 +1368,7 @@ namespace System.Reactive.Linq.ObservableImpl
                 subscriptions[10].Disposable = _parent._source11.SubscribeSafe(_observer11);
                 subscriptions[11].Disposable = _parent._source12.SubscribeSafe(_observer12);
 
-                return new CompositeDisposable(subscriptions)
+                return new DisposableCollection(subscriptions)
                     {
                         Disposable.Create(() =>
                         {
@@ -1516,7 +1509,7 @@ namespace System.Reactive.Linq.ObservableImpl
                 subscriptions[11].Disposable = _parent._source12.SubscribeSafe(_observer12);
                 subscriptions[12].Disposable = _parent._source13.SubscribeSafe(_observer13);
 
-                return new CompositeDisposable(subscriptions)
+                return new DisposableCollection(subscriptions)
                     {
                         Disposable.Create(() =>
                         {
@@ -1664,7 +1657,7 @@ namespace System.Reactive.Linq.ObservableImpl
                 subscriptions[12].Disposable = _parent._source13.SubscribeSafe(_observer13);
                 subscriptions[13].Disposable = _parent._source14.SubscribeSafe(_observer14);
 
-                return new CompositeDisposable(subscriptions)
+                return new DisposableCollection(subscriptions)
                     {
                         Disposable.Create(() =>
                         {
@@ -1819,7 +1812,7 @@ namespace System.Reactive.Linq.ObservableImpl
                 subscriptions[13].Disposable = _parent._source14.SubscribeSafe(_observer14);
                 subscriptions[14].Disposable = _parent._source15.SubscribeSafe(_observer15);
 
-                return new CompositeDisposable(subscriptions)
+                return new DisposableCollection(subscriptions)
                     {
                         Disposable.Create(() =>
                         {
@@ -1981,7 +1974,7 @@ namespace System.Reactive.Linq.ObservableImpl
                 subscriptions[14].Disposable = _parent._source15.SubscribeSafe(_observer15);
                 subscriptions[15].Disposable = _parent._source16.SubscribeSafe(_observer16);
 
-                return new CompositeDisposable(subscriptions)
+                return new DisposableCollection(subscriptions)
                     {
                         Disposable.Create(() =>
                         {
@@ -2226,7 +2219,7 @@ namespace System.Reactive.Linq.ObservableImpl
 
                 _isDone = new bool[N];
 
-                _subscriptions = new SingleAssignmentDisposable[N];
+                _subscriptions = new IDisposable[N];
 
                 _gate = new object();
 
@@ -2241,7 +2234,10 @@ namespace System.Reactive.Linq.ObservableImpl
                     d.Disposable = srcs[j].SubscribeSafe(o);
                 }
 
-                return new CompositeDisposable(_subscriptions) { Disposable.Create(() => { foreach (var q in _queues) q.Clear(); }) };
+                var resources = new IDisposable[N+1];
+                _subscriptions.CopyTo(resources, 0);
+                resources[N] = Disposable.Create(() => { foreach (var q in _queues) q.Clear(); });;
+                return new CompositeDisposable(resources);
             }
 
             private void OnNext(int index, TSource value)

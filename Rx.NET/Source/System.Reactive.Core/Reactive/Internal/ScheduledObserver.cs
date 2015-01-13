@@ -53,11 +53,10 @@ namespace System.Reactive
                     {
                         _dispatcherJob = _longRunning.ScheduleLongRunning(Dispatch);
 
-                        _disposable.Disposable = new CompositeDisposable(2)
-                        {
+                        _disposable.Disposable = new CompositeDisposable(
                             _dispatcherJob,
                             Disposable.Create(() => _dispatcherEvent.Release())
-                        };
+                        );
                     }
                 }
             }

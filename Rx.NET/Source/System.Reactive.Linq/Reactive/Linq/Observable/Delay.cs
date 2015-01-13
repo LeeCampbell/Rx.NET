@@ -611,14 +611,14 @@ namespace System.Reactive.Linq.ObservableImpl
                 _parent = parent;
             }
 
-            private CompositeDisposable _delays;
+            private DisposableCollection _delays;
             private object _gate;
             private bool _atEnd;
             private SerialDisposable _subscription;
 
             public IDisposable Run()
             {
-                _delays = new CompositeDisposable();
+                _delays = new DisposableCollection();
                 _gate = new object();
                 _atEnd = false;
                 _subscription = new SerialDisposable();

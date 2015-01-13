@@ -26,12 +26,12 @@ namespace System.Reactive.Linq.ObservableImpl
             _comparer = comparer;
         }
 
-        private CompositeDisposable _groupDisposable;
+        private DisposableCollection _groupDisposable;
         private RefCountDisposable _refCountDisposable;
 
         protected override IDisposable Run(IObserver<IGroupedObservable<TKey, TElement>> observer, IDisposable cancel, Action<IDisposable> setSink)
         {
-            _groupDisposable = new CompositeDisposable();
+            _groupDisposable = new DisposableCollection();
             _refCountDisposable = new RefCountDisposable(_groupDisposable);
 
             var sink = new _(this, observer, cancel);

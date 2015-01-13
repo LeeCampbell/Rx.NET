@@ -45,7 +45,7 @@ namespace System.Reactive.Concurrency
 
         static IDisposable InvokeRec1<TState>(IScheduler scheduler, Pair<TState, Action<TState, Action<TState>>> pair)
         {
-            var group = new CompositeDisposable(1);
+            var group = new DisposableCollection(1);
             var gate = new object();
             var state = pair.First;
             var action = pair.Second;
@@ -124,7 +124,7 @@ namespace System.Reactive.Concurrency
 
         static IDisposable InvokeRec2<TState>(IScheduler scheduler, Pair<TState, Action<TState, Action<TState, TimeSpan>>> pair)
         {
-            var group = new CompositeDisposable(1);
+            var group = new DisposableCollection(1);
             var gate = new object();
             var state = pair.First;
             var action = pair.Second;
@@ -203,7 +203,7 @@ namespace System.Reactive.Concurrency
 
         static IDisposable InvokeRec3<TState>(IScheduler scheduler, Pair<TState, Action<TState, Action<TState, DateTimeOffset>>> pair)
         {
-            var group = new CompositeDisposable(1);
+            var group = new DisposableCollection(1);
             var gate = new object();
             var state = pair.First;
             var action = pair.Second;

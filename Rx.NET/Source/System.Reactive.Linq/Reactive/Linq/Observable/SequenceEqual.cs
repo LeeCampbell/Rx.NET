@@ -69,10 +69,10 @@ namespace System.Reactive.Linq.ObservableImpl
                 _qr = new Queue<TSource>();
 
                 return new CompositeDisposable
-                {
+                (
                     _parent._first.SubscribeSafe(new F(this)),
                     _parent._second.SubscribeSafe(new S(this))
-                };
+                );
             }
 
             class F : IObserver<TSource>

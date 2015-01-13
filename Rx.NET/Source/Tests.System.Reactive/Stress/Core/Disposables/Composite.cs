@@ -66,7 +66,7 @@ namespace ReactiveTests.Stress.Disposables
         {
             var rand = new Random();
 
-            var g = new CompositeDisposable();
+            var g = new DisposableCollection();
 
             Console.Write("Dispose @ = {0} - ", disposeAt);
 

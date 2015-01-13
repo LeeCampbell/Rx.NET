@@ -210,7 +210,7 @@ namespace System.Reactive.Linq.ObservableImpl
                     var c = new SingleAssignmentDisposable();
                     c.Disposable = self.Schedule(1L, CatchUp);
 
-                    return new CompositeDisposable(2) { d, c };
+                    return new CompositeDisposable(d, c);
                 }
 
                 return d;

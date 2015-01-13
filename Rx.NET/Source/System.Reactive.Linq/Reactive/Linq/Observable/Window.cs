@@ -182,7 +182,7 @@ namespace System.Reactive.Linq.ObservableImpl
 
                 _timerD = new SerialDisposable();
 
-                var groupDisposable = new CompositeDisposable(2) { _timerD };
+                var groupDisposable = new DisposableCollection(2) { _timerD };
                 _refCountDisposable = new RefCountDisposable(groupDisposable);
 
                 CreateWindow();
@@ -313,14 +313,15 @@ namespace System.Reactive.Linq.ObservableImpl
             public IDisposable Run()
             {
                 _gate = new object();
-
-                var groupDisposable = new CompositeDisposable(2);
+                var scheduledTickCancelation = new SingleAssignmentDisposable();
+                var subscription = new SingleAssignmentDisposable();
+                var groupDisposable = new CompositeDisposable(scheduledTickCancelation, subscription);
                 _refCountDisposable = new RefCountDisposable(groupDisposable);
 
                 CreateWindow();
 
-                groupDisposable.Add(_parent._scheduler.SchedulePeriodic(_parent._timeSpan, Tick));
-                groupDisposable.Add(_parent._source.SubscribeSafe(this));
+                scheduledTickCancelation.Disposable = _parent._scheduler.SchedulePeriodic(_parent._timeSpan, Tick);
+                subscription.Disposable = _parent._source.SubscribeSafe(this);
 
                 return _refCountDisposable;
             }
@@ -397,14 +398,15 @@ namespace System.Reactive.Linq.ObservableImpl
                 _windowId = 0;
 
                 _timerD = new SerialDisposable();
-                var groupDisposable = new CompositeDisposable(2) { _timerD };
+                var subscription = new SingleAssignmentDisposable();
+                var groupDisposable = new CompositeDisposable(_timerD, subscription);
                 _refCountDisposable = new RefCountDisposable(groupDisposable);
 
                 _s = new Subject<TSource>();
                 base._observer.OnNext(new WindowObservable<TSource>(_s, _refCountDisposable));
                 CreateTimer(0);
 
-                groupDisposable.Add(_parent._source.SubscribeSafe(this));
+                subscription.Disposable = _parent._source.SubscribeSafe(this);
 
                 return _refCountDisposable;
             }
@@ -546,13 +548,14 @@ namespace System.Reactive.Linq.ObservableImpl
                 _windowGate = new AsyncLock();
 
                 _m = new SerialDisposable();
-                var groupDisposable = new CompositeDisposable(2) { _m };
+                var subscription = new SingleAssignmentDisposable();
+                var groupDisposable = new CompositeDisposable(_m, subscription);
                 _refCountDisposable = new RefCountDisposable(groupDisposable);
 
                 var window = new WindowObservable<TSource>(_window, _refCountDisposable);
                 base._observer.OnNext(window);
 
-                groupDisposable.Add(_parent._source.SubscribeSafe(this));
+                subscription.Disposable = _parent._source.SubscribeSafe(this);
 
                 _windowGate.Wait(CreateWindowClose);
 
@@ -666,14 +669,15 @@ namespace System.Reactive.Linq.ObservableImpl
             private ISubject<TSource> _window;
             private object _gate;
 
-            private RefCountDisposable _refCountDisposable;            
+            private RefCountDisposable _refCountDisposable;
 
             public IDisposable Run()
             {
                 _window = new Subject<TSource>();
                 _gate = new object();
 
-                var d = new CompositeDisposable(2);
+                
+                var d = new DisposableCollection(2);
                 _refCountDisposable = new RefCountDisposable(d);
 
                 var window = new WindowObservable<TSource>(_window, _refCountDisposable);

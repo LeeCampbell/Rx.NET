@@ -32,7 +32,7 @@ namespace Microsoft.Reactive.Testing
             subscriptions.Add(new Subscription(scheduler.Clock));
             var index = subscriptions.Count - 1;
 
-            var d = new CompositeDisposable();
+            var d = new DisposableCollection();
 
             for (var i = 0; i < messages.Length; ++i)
             {

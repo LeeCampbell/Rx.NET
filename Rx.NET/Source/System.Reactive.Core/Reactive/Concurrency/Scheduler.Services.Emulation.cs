@@ -338,11 +338,10 @@ namespace System.Reactive.Concurrency
                 _nextDue = _period;
                 _runState = RUNNING;
 
-                return new CompositeDisposable(2)
-                {
+                return new CompositeDisposable(
                     _scheduler.Schedule(_nextDue, Tick),
                     Disposable.Create(Cancel)
-                };
+                );
             }
 
             private void Tick(Action<TimeSpan> recurse)
