@@ -164,7 +164,7 @@ namespace System.Reactive.Concurrency
             lock (_gate)
             {
                 if (_disposed)
-                    throw new ObjectDisposedException("");
+                    throw new ObjectDisposedException("", string.Format("EventLoopScheduler bound to Thread:'{0}' has been disposed.", _thread.Name));
 
                 if (dueTime <= TimeSpan.Zero)
                 {
