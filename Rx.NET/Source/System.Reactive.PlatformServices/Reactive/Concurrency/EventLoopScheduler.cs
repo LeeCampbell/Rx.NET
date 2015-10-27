@@ -212,6 +212,8 @@ namespace System.Reactive.Concurrency
             var tick = default(Func<IScheduler, object, IDisposable>);
             tick = (self_, _) =>
             {
+                if (_disposed) 
+                    return Disposable.Empty;
                 next += period;
 
                 d.Disposable = self_.Schedule(null, next - _stopwatch.Elapsed, tick);

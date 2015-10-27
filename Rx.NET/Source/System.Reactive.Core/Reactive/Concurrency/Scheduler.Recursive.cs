@@ -56,6 +56,8 @@ namespace System.Reactive.Concurrency
                 var isAdded = false;
                 var isDone = false;
                 var d = default(IDisposable);
+                if(group.IsDisposed)
+                    return;
                 d = scheduler.Schedule(state2, (scheduler1, state3) =>
                 {
                     lock (gate)
